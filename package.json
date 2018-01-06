@@ -1,0 +1,58 @@
+{
+  "name": "vue-learn",
+  "version": "1.0.0",
+  "description": "My project which learns VueJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goden/vue-learn.git"
+  },
+  "keywords": [
+    "vue",
+    "gulp"
+  ],
+  "author": "Goden <goden.incredible@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/goden/vue-learn/issues"
+  },
+  "homepage": "https://github.com/goden/vue-learn#readme",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "jquery": "^3.2.1",
+    "vue": "^2.5.13"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "babelify": "^8.0.0",
+    "bower": "^1.8.2",
+    "browser-sync": "^2.21.0",
+    "browserify": "^14.5.0",
+    "eslint": "^4.14.0",
+    "gulp": "^4.0.0",
+    "gulp-bower": "0.0.13",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^3.9.0",
+    "gulp-file-include": "^1.2.0",
+    "gulp-image": "^4.1.0",
+    "gulp-notify": "^3.0.0",
+    "gulp-param": "^1.0.3",
+    "gulp-plumber": "^1.1.0",
+    "gulp-postcss": "^6.3.0",
+    "gulp-pug": "^3.3.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.5.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "run-sequence": "^2.2.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
+}

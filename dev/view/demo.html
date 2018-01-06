@@ -1,0 +1,18 @@
+<html>
+
+<head>
+  @@loop('modules/styles.html',[ 
+    {"styles": "./css/main.css"}
+  ])
+</head>
+
+<body>
+    <div id="app">
+      <h1>{{currentActivity}}</h1>
+        <my-component></my-component>
+        <demo-component></demo-component>
+    </div>
+    @@loop('modules/scripts.html',[ {"scripts": "./js/demo.js"} ])
+</body>
+
+</html>
