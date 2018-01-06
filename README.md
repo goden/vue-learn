@@ -1,5 +1,5 @@
 # 簡介
-本專案為重慶時時彩的前端開發架構，採用VueJS與jQuery為主的開發函式庫。
+本專案為學習VueJS學習專案，採用VueJS與jQuery為主的開發函式庫。
 # 開發環境
 ## 初次設定
 ### Git
@@ -56,27 +56,6 @@ NPM 系統會依照package.json檔案中的設定將開發與部署所需函式�
     README.md
     gulpfile.js
 ```
-## 結構說明
-
-- dev 前端團隊開發主目錄 
-    - style 樣式表目錄，亦為團隊產出的css樣式表
-    - view 頁面目錄，亦為團隊產出的html頁面
-    - script javascript目錄，為前端團隊開發核心目錄
-    - images 專案用圖目錄
-- design UI設計團隊主目錄
-    - (需design團隊協助補述)
-    - ...族繁不及備載...
-- dist 前端團隊產出目錄，亦為最後部署產品的內容物
-    - css css檔放置處
-    - img 圖片檔放置處
-    - js javascript檔放置處
-    - font 文字檔放置處(if necessary)
-- bower.json npm系統用於作套件依賴管理的json檔
-- package.json npm系統用於作套件依賴管理的json檔
-- .gitignore git-commit至local repository所用之忽略清單
-- .bowerrc bower套件下載的定義檔
-- README.md
-- gulpfile.js 
 
 ## Gulp執行說明
 
