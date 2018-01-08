@@ -8,7 +8,6 @@ var image = require('gulp-image');
 var sourcemaps = require('gulp-sourcemaps');
 var cleanCss = require('gulp-clean-css');
 var rename = require('gulp-rename');
-var runSequence = require('run-sequence');
 
 var fs = require('fs');
 var browserify = require('browserify');
@@ -19,69 +18,22 @@ var uglify = require('gulp-uglify');
 var fileinclude = require('gulp-file-include');
 var gutil = require('gulp-util');
 
+var glob = require("glob");
+
 var _port = 8080;
 
-// default task, run a build task to deploy.
-gulp.task('default', function(cb) {
-    // gulp.start('build', cb);
-    runSequence(
-        'clean',
-        'build',
-        'start:dev'
-    );
+// remove all contents under the dist directory.
+gulp.task('clean', function() {
+    return gulp.src(`./dist/*`, { read: false })
+        .pipe(clean());
 });
 
-// Build and deploy the assets in sequence.
-gulp.task('build', function() {
-    runSequence(
-        // 'clean',
-        'build-image', 
-        'build-style', 
-        'build-script',
-        // 'clean-script-map', // survey how to resolve in build-script phrase.
-        'build-html',
-        function() {
-            console.log('Already rebuild and deploy.');
-        }
-    );
-});
-
-// initialize a server within monitoring the dist folder
-// also build and deploy the assets in case of any changes of dev directory.
-gulp.task('start:dev', ['watch'], function () {
-
-    gulp.watch([
-        'dist/**/*',
-        'dist/*'
-    ], browserSync.reload);
-
-    browserSync.init({
-        server: {
-            baseDir: 'dist',
-            index: "index.html"
-        },
-        port: _port,
-        cors: true
-    });
-});
-
-// trigger a build-and-deploy monitoring task in case of changes from dev directory.
-gulp.task('watch', function() {
-    gulp.watch(['./dev/*', './dev/**/*', './dev/**/**/*'], ['build']);
-});
-
-// run a html-build task and deploy the built output to dist directory.
-gulp.task('build-html', function () {
-    
-    return gulp.src('./dev/view/*.html')
-                .pipe(fileinclude({
-                    prefix: '@@',
-                    basepath: '@file'
-                }))
-                .pipe(gulp.dest('./dist'))
-                .on('finish', function () {
-                    console.log('build-html is complete.');
-                });
+// optimize the image and deploy the dist/img directory.
+gulp.task('build-image', function () {
+    return gulp.src('./dev/images/*')
+                .pipe(image())
+                .pipe(gulp.dest('./dist/img'))
+                .pipe(notify('image has optimized.'));
 });
 
 // minify css code and deploy the output to dist/css directory.
@@ -100,42 +52,17 @@ gulp.task('build-style', function () {
         .pipe(notify('built-style is complete.'));
 });
 
-// optimize the image and deploy the dist/img directory.
-gulp.task('build-image', function () {
-    return gulp.src('./dev/images/*')
-                .pipe(image())
-                .pipe(gulp.dest('./dist/img'))
-                .pipe(notify('image has optimized.'));
-});
-
 // trigger a build task which performs following:
 // 1. build in es2015 spec
 // 2. use browserify to unify javascript code into a single js file.
 // 3. minify the javascript code.
-gulp.task('build-script', function () {
+gulp.task('build-script', function(callback) {
 
-    const _path = './dev/script/';
-    fs.readdir(_path, function (err, entries) {
-        if (err) {
-            console.logError(err);
-            return;
-        }
+    glob('./dev/script/*.js', function(err, files) {
+        if (err) callback(err);
 
-        // filter out the folder, only handle with javascript file.
-        entries = entries.filter(function(_entry) {
-            console.log( _path + _entry);
-            var stats = fs.statSync( _path + _entry);
-            return stats.isFile();
-        });
-
-        entries.map(function (_entry) {
-
-            _entry = _path + _entry;
-
-            return browserify({
-                entries: [_entry],
-                debug: true
-            })
+        files.map(function (_entry) {
+            return browserify({entries: [_entry]})
                 .transform(babelify, { presets: ['es2015'] })
                 .bundle()
                 .pipe(plumber())
@@ -150,7 +77,60 @@ gulp.task('build-script', function () {
         });
     });
 
+    callback.apply(null);
+
 });
+
+// run a html-build task and deploy the built output to dist directory.
+gulp.task('build-html', function (callback) {
+    
+    return gulp.src('./dev/view/*.html')
+                .pipe(fileinclude({
+                    prefix: '@@',
+                    basepath: '@file'
+                }))
+                .pipe(gulp.dest('./dist'))
+                .on('finish', function () {
+                    console.log('build-html is complete.');
+                });
+});
+
+// Build and deploy the assets in sequence.
+gulp.task('build', gulp.series('build-image', 
+                               'build-style',
+                               'build-script',
+                               'build-html',
+                                function(callback) {
+                                    callback();
+                                }));
+
+// trigger a build-and-deploy monitoring task in case of changes from dev directory.
+gulp.task('watch', function() {
+    gulp.watch(['./dev/*', './dev/**/*', './dev/**/**/*'], ['build']);
+});
+
+// initialize a server within monitoring the dist folder
+// also build and deploy the assets in case of any changes of dev directory.
+gulp.task('start:dev', gulp.series('watch', function () {
+    gulp.watch([
+        'dist/**/*',
+        'dist/*'
+    ], browserSync.reload);
+
+    browserSync.init({
+        server: {
+            baseDir: 'dist',
+            index: "index.html"
+        },
+        port: _port,
+        cors: true
+    });
+}));
+
+gulp.task('default', gulp.series('clean', 'build', 'start:dev', function(done) {
+    done();
+}));
+
 
 // only start a server without any additional operation.
 gulp.task('start', function () {
@@ -164,11 +144,7 @@ gulp.task('start', function () {
     });
 });
 
-// remove all contents under the dist directory.
-gulp.task('clean', function() {
-    return gulp.src(`./dist/*`, { read: false })
-        .pipe(clean());
-});
+
 
 // remove the .map files generated during running build-script.
 gulp.task('clean-script-map', function() {
