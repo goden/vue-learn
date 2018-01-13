@@ -1,35 +1,36 @@
-var gulp = require('gulp');
-var browserSync = require('browser-sync').create();
-var plumber = require('gulp-plumber');
-var clean = require('gulp-clean');
-var notify = require('gulp-notify');
+import gulp from 'gulp';
+import browserSync from 'browser-sync';
+import plumber from 'gulp-plumber';
+import clean from 'gulp-clean';
+import notify from 'gulp-notify';
 
-var image = require('gulp-image');
-var sourcemaps = require('gulp-sourcemaps');
-var cleanCss = require('gulp-clean-css');
-var rename = require('gulp-rename');
+import image from 'gulp-image';
+import sourcemaps from 'gulp-sourcemaps';
+import cleanCss from 'gulp-clean-css';
+import rename from 'gulp-rename';
 
-var fs = require('fs');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var source = require('vinyl-source-stream');  
-var buffer = require('vinyl-buffer');
-var uglify = require('gulp-uglify');
-var fileinclude = require('gulp-file-include');
-var gutil = require('gulp-util');
+import fs from 'fs';
+import browserify from 'browserify';
+import babelify from 'babelify';
+import source from 'vinyl-source-stream';  
+import buffer from 'vinyl-buffer';
+import uglify from 'gulp-uglify';
+import fileinclude from 'gulp-file-include';
+import gutil from 'gulp-util';
 
-var glob = require("glob");
+import glob from "glob";
 
 var _port = 8080;
+var _browserSync = browserSync.create();
 
 // remove all contents under the dist directory.
-gulp.task('clean', function() {
+gulp.task('clean', () => {
     return gulp.src(`./dist/*`, { read: false })
         .pipe(clean());
 });
 
 // optimize the image and deploy the dist/img directory.
-gulp.task('build-image', function () {
+gulp.task('build-image',  () => {
     return gulp.src('./dev/images/*')
                 .pipe(image())
                 .pipe(gulp.dest('./dist/img'))
@@ -37,12 +38,12 @@ gulp.task('build-image', function () {
 });
 
 // minify css code and deploy the output to dist/css directory.
-gulp.task('build-style', function () {
+gulp.task('build-style',  () => {
     return gulp.src('./dev/**/*.css')
         .pipe(plumber())
         .pipe(cleanCss({
             debug: true
-        }, function(detail) {
+        }, (detail) => {
             let ds = detail.stats;
             let _msg = `minifing [${detail.name}]: before -> ${ds.originalSize} KB, after -> ${ds.minifiedSize} KB, reduced ${parseInt(ds.efficiency * 100)}%`;
             console.log(_msg);
@@ -56,12 +57,12 @@ gulp.task('build-style', function () {
 // 1. build in es2015 spec
 // 2. use browserify to unify javascript code into a single js file.
 // 3. minify the javascript code.
-gulp.task('build-script', function(callback) {
+gulp.task('build-script', (callback) => {
 
-    glob('./dev/script/*.js', function(err, files) {
+    glob('./dev/script/*.js', (err, files) => {
         if (err) callback(err);
 
-        files.map(function (_entry) {
+        files.map( (_entry) => {
             return browserify({entries: [_entry]})
                 .transform(babelify, { presets: ['es2015'] })
                 .bundle()
@@ -82,7 +83,7 @@ gulp.task('build-script', function(callback) {
 });
 
 // run a html-build task and deploy the built output to dist directory.
-gulp.task('build-html', function (callback) {
+gulp.task('build-html',  (callback) => {
     
     return gulp.src('./dev/view/*.html')
                 .pipe(fileinclude({
@@ -90,9 +91,7 @@ gulp.task('build-html', function (callback) {
                     basepath: '@file'
                 }))
                 .pipe(gulp.dest('./dist'))
-                .on('finish', function () {
-                    console.log('build-html is complete.');
-                });
+                .on('finish',  () => console.log('build-html is complete.'));
 });
 
 // Build and deploy the assets in sequence.
@@ -100,47 +99,21 @@ gulp.task('build', gulp.series('build-image',
                                'build-style',
                                'build-script',
                                'build-html',
-                                function(callback) {
-                                    callback();
-                                }));
+                                callback => callback()));
 
 // trigger a build-and-deploy monitoring task in case of changes from dev directory.
-gulp.task('watch', function() {
-    // gulp.watch(['./dev/*', './dev/**/*', './dev/**/**/*'], ['build']);
-    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', function(callback) {
-        callback();
-    }));
+gulp.task('watch', () => {
+    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', callback => callback()));
 });
 
 // initialize a server within monitoring the dist folder
 // also build and deploy the assets in case of any changes of dev directory.
-gulp.task('start:dev', gulp.series('watch', function () {
-    gulp.watch([
-        'dist/**/*',
-        'dist/*'
-    ], browserSync.reload);
+gulp.task('start:dev',  () => {
 
-    browserSync.init({
-        server: {
-            baseDir: 'dist',
-            index: "index.html"
-        },
-        port: _port,
-        cors: true
-    });
-}));
+    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', callback => callback()));
+    gulp.watch(['dist/**/*', 'dist/*'], _browserSync.reload);
 
-gulp.task('start:dev1', function () {
-
-    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', function(callback) {
-        callback();
-    }));
-    gulp.watch([
-        'dist/**/*',
-        'dist/*'
-    ], browserSync.reload);
-
-    browserSync.init({
+    _browserSync.init({
         server: {
             baseDir: 'dist',
             index: "index.html"
@@ -150,13 +123,11 @@ gulp.task('start:dev1', function () {
     });
 });
 
-gulp.task('default', gulp.series('clean', 'build', 'start:dev', function(done) {
-    done();
-}));
+gulp.task('default', gulp.series('clean', 'build', 'start:dev', done => done()));
 
 
 // only start a server without any additional operation.
-gulp.task('start', function () {
+gulp.task('start',  () => {
     browserSync.init({
         server: {
             baseDir: 'dist',
@@ -170,7 +141,6 @@ gulp.task('start', function () {
 
 
 // remove the .map files generated during running build-script.
-gulp.task('clean-script-map', function() {
-    return gulp.src(`./dist/js/*.map`, { read: false })
-        .pipe(clean());
+gulp.task('clean-script-map', () => {
+    return gulp.src(`./dist/js/*.map`, { read: false }).pipe(clean());
 });
