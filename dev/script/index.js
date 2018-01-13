@@ -1,5 +1,5 @@
 (function() {
     setTimeout(() => {
-        location.href = 'lottery.html';
+        location.href = 'demo.html';
     }, 1 * 1000);
 })();
