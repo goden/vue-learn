@@ -106,7 +106,10 @@ gulp.task('build', gulp.series('build-image',
 
 // trigger a build-and-deploy monitoring task in case of changes from dev directory.
 gulp.task('watch', function() {
-    gulp.watch(['./dev/*', './dev/**/*', './dev/**/**/*'], ['build']);
+    // gulp.watch(['./dev/*', './dev/**/*', './dev/**/**/*'], ['build']);
+    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', function(callback) {
+        callback();
+    }));
 });
 
 // initialize a server within monitoring the dist folder
@@ -126,6 +129,26 @@ gulp.task('start:dev', gulp.series('watch', function () {
         cors: true
     });
 }));
+
+gulp.task('start:dev1', function () {
+
+    gulp.watch(['./dev/**/*', './dev/**/**/*'], gulp.series('build', function(callback) {
+        callback();
+    }));
+    gulp.watch([
+        'dist/**/*',
+        'dist/*'
+    ], browserSync.reload);
+
+    browserSync.init({
+        server: {
+            baseDir: 'dist',
+            index: "index.html"
+        },
+        port: _port,
+        cors: true
+    });
+});
 
 gulp.task('default', gulp.series('clean', 'build', 'start:dev', function(done) {
     done();
