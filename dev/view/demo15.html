@@ -1,0 +1,20 @@
+<html>
+
+<head>
+  @@loop('modules/styles.html',[ 
+    {"styles": "./css/main.css"}
+  ])
+</head>
+
+<body>
+    <div id="app">
+        <div class="menu">
+            <router-link to="/foo">Foo</router-link>
+            <router-link to="/bar">Second</router-link>
+        </div>
+        <router-view></router-view>
+    </div>
+    @@loop('modules/scripts.html',[ {"scripts": "./js/demo15.js"} ])
+</body>
+
+</html>
