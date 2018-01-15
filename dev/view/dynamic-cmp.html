@@ -1,0 +1,18 @@
+<html>
+
+<head>
+  <link rel="stylesheet" media="all" href="./css/main.css">
+</head>
+
+<body>
+    <div id="app">
+        <button @click="content='lessons'">Lessons</button>
+        <button @click="content='apply'">Apply</button>
+        <br>
+        <component :is="content"></component>
+    </div>
+    <script type="text/javascript"  src="./js/dynamic-cmp.js"></script>
+
+</body>
+
+</html>
