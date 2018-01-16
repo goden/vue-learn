@@ -17,6 +17,7 @@ import buffer from 'vinyl-buffer';
 import uglify from 'gulp-uglify';
 import fileinclude from 'gulp-file-include';
 import gutil from 'gulp-util';
+import importCSS from 'gulp-import-css';
 
 import glob from "glob";
 
@@ -41,6 +42,7 @@ gulp.task('build-image',  () => {
 gulp.task('build-style',  () => {
     return gulp.src('./dev/**/*.css')
         .pipe(plumber())
+        .pipe(importCSS())
         .pipe(cleanCss({
             debug: true
         }, (detail) => {
